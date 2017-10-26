@@ -12,6 +12,7 @@ use Behat\Gherkin\Node\TableNode;
 use Behat\Behat\Tester\Exception\PendingException;
 use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\Process;
+use Behat\Mink\Exception\ResponseTextException;
 
 /**
  * Defines application features from the specific context.
@@ -46,6 +47,7 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
       'system_url',
       'alias_url',
       'edit_url',
+      'path',
     ];
   }
 
@@ -110,6 +112,13 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
       case 'alias_url':
         $value = \Drupal::service('path.alias_manager')
           ->getAliasByPath($node->url());
+        if (empty($value)) {
+          return $node->url();
+        }
+        break;
+
+      case 'path':
+        $value = $node->url();
         break;
 
       case 'edit_url':
@@ -288,11 +297,97 @@ class FeatureContext extends RawDrupalContext implements SnippetAcceptingContext
   public function elementHasText($element, $text) {
     $element_obj = $this->getSession()->getPage()->find('css', $element);
 
+    // Element not found.
+    if (is_null($element_obj)) {
+      $msg = 'Element ' . $element . ' not found.';
+      throw new \Exception($msg);
+    }
+
     // Find the text within the region
     $element_text = $element_obj->getText();
     if (strpos($element_text, $text) === FALSE) {
       throw new \Exception(sprintf("The text '%s' was not found in the element '%s' on the page %s", $text, $element, $this->getSession()->getCurrentUrl()));
     }
+  }
+
+  /**
+   * @Then I should see text :text in XML
+   */
+  public function iShouldSeeTextMatchingInXml($text)
+  {
+    $xml = $this->getSession()->getDriver()->getContent();
+    $message = sprintf('The text %s was not found anywhere in the XML.', $text);
+
+    if (strpos($xml, $text) === FALSE) {
+      throw new ResponseTextException($message, $this->getSession()->getDriver());
+    }
+  }
+
+  /**
+   * @Given I fill in :arg1 with node path of :arg2
+   */
+  public function iFillInWithNodePathOf($field, $title)
+  {
+
+    $value = $this->getNodeIdByTitle($title);
+
+    if (!empty($field) && !empty($value)) {
+      $this->getSession()->getPage()->fillField($field, '/node/' . $value);
+    }
+    else {
+      $msg = 'Unable to fill ' . $field . ' with node path of "' . $title . '"';
+      throw new \Exception($msg);
+    }
+  }
+
+  /**
+   * @Then the :arg1 field should contain node path of :arg2
+   */
+  public function theFieldShouldContainNodePathOf($field, $title)
+  {
+    $path = '/node/' . $this->getNodeIdByTitle($title);
+    $this->assertSession()
+      ->fieldValueEquals(str_replace('\\"', '"', $field), str_replace('\\"', '"', $path));
+  }
+
+  /**
+   * Get node id by its title.
+   */
+  protected function getNodeIdByTitle($title) {
+    $query = \Drupal::entityQuery('node')
+      ->condition('status', 1)
+      ->condition('title', $title);
+    $nids = $query->execute();
+    return reset($nids);
+  }
+
+  /**
+   * @Given /^I select this "([^"]*)" from "([^"]*)"$/
+   */
+  public function iSelectThisFrom($time, $field) {
+    $value = date('n/d/Y', strtotime($time));
+    // Mimic \Behat\MinkExtension\Context\MinkContext::fillField.
+    $field = $this->fixStepArgument($field);
+    $value = $this->fixStepArgument($value);
+    $this->getSession()->getPage()->fillField($field, $value);
+  }
+
+  /**
+   * @Given /^I print page$/
+   */
+  public function iPrintPage() {
+    print $this->getSession()->getPage()->getHtml();
+  }
+
+  /**
+   * Returns fixed step argument (with \\" replaced back to ")
+   *
+   * @param string $argument
+   *
+   * @return string
+   */
+  protected function fixStepArgument($argument) {
+    return str_replace('\\"', '"', $argument);
   }
 
 }

@@ -57,6 +57,9 @@
     max-width: 24px;
     float: left;
     width: auto;
+    &.fa-handshake-o {
+      margin-right: 20px;
+    }
     @include breakpoint (768px) {
       font-size: 26px;
       max-height: 26px;
@@ -127,7 +130,6 @@
 
       @include breakpoint (768px) {
         background: none;
-        text-shadow: none;
         opacity: 0.5;
         height: 54px;
         width: 44px;
@@ -329,7 +331,7 @@
     margin-bottom: 27px;
   }
 
-  h3 {
+  h2 {
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     text-transform: uppercase;
     color: $default-grey;
@@ -340,9 +342,12 @@
     letter-spacing: 2px;
   }
 
-  h2 {
+  .field-prgf-description h2 {
     color: $purple;
+    font-family: $font-style-cachet-ubuntu;
     font-weight: bold;
+    letter-spacing: normal;
+    text-transform: none;
 
     a {
       text-decoration: none;
@@ -384,6 +389,9 @@
   .link {
     font-size: 15px;
     color: $blue;
+    &:hover {
+      text-decoration: underline;
+    }
   }
 }
 
@@ -551,18 +559,42 @@
     }
 
     .banner-title {
-      margin: 0;
+      margin: 0 0 10px;
       max-width: 700px;
     }
 
   }
 }
 
-.paragraph .h1 {
-  font-weight: bold;
+.paragraph {
+  .h1 {
+    font-weight: bold;
 
-  [class*='sidebar'] & {
-    padding-bottom: 1em;
+    [class*='sidebar'] & {
+      padding-bottom: 1em;
+    }
+  }
+  &--type--latest-blog-posts,
+  &--type--blog-posts-listing,
+  &--type--latest-blog-posts-branch,
+  &--type--latest-blog-posts-camp {
+    .h1 {
+      margin-bottom: 10px;
+      font-size: $h1-size;
+    }
+    .blog-more-teaser {
+      margin-top: 0;
+    }
+    .views-exposed-form {
+      margin-top: 24px;
+      margin-bottom: 30px;
+    }
+    @include breakpoint($screen-sm) {
+      .blog-more-teaser-results-wrapper {
+        margin-left: -15px;
+        margin-right: -15px;
+      }
+    }
   }
 }
 
@@ -573,6 +605,37 @@
   .one-column-clean &:first-child,
   .landing-header & {
     padding-top: 0;
+  }
+}
+.paragraph--type--prgf-location-finder-filters {
+  padding: 0;
+  overflow: visible;
+  .messages {
+    padding: 20px;
+  }
+  .tag_filters {
+    width: 100%;
+    @media (max-width: $screen-md) {
+      margin-top: 15px;
+    }
+
+    .ms-options-wrap {
+      button {
+        height: 34px;
+        font-size: 14px;
+        line-height: 1.42857143;
+        color: #555555;
+      }
+      .ms-options li label {
+        left: 0;
+        background-color: #FFFFFF;
+
+        &:hover {
+          color: #FFFFFF;
+          background: #00aeef;
+        }
+      }
+    }
   }
 }
 .paragraph--type--prgf-location-finder {
@@ -784,21 +847,63 @@
   }
 }
 
-.paragraph--type--blog-posts-listing,
-.paragraph--type--latest-blog-posts,
-.paragraph--type--latest-blog-posts-camp,
-.paragraph--type--latest-blog-posts-branch {
-  .views-exposed-form {
-    margin-bottom: 30px;
-  }
-  @include breakpoint($screen-sm) {
-    .blog-more-teaser-results-wrapper {
-      margin-left: -15px;
-      margin-right: -15px;
-    }
-  }
-}
-
 .paragraph--type--openy-prgf-mbrshp-calc {
   padding: 20px 0;
+}
+
+.paragraph--type--classes-listing-filters {
+  background-color: $lighter-grey;
+
+  form {
+    background-color: $sky-blue;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    @include breakpoint($screen-sm) {
+      background-color: $lighter-grey;
+      margin-bottom: 40px;
+      padding-bottom: 0;
+    }
+  }
+
+  .js-form-type-select {
+    display: inline-block;
+    padding: 10px 0 5px;
+    width: 100%;
+    @include breakpoint($screen-sm) {
+      float: left;
+      padding: 15px 0;
+      margin-right: 18px;
+      width: 125px;
+    }
+    @include breakpoint($screen-md) {
+      width: 170px;
+    }
+    @include breakpoint($screen-lg) {
+      width: 200px;
+    }
+
+    label {
+      font-size: 14px;
+      line-height: 1.6;
+      @include cachet();
+      color: $dark-grey;
+      margin-bottom: 0;
+      @include breakpoint($screen-sm) {
+        margin-bottom: 5px;
+      }
+    }
+
+    select {
+      text-transform: uppercase;
+      color: $dark-grey;
+      @include cachet();
+    }
+  }
+
+  .form-actions {
+    margin-top: 10px;
+    @include breakpoint($screen-sm) {
+      margin-top: 49px;
+    }
+  }
 }

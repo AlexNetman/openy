@@ -1,7 +1,8 @@
 name: 'OpenY Camp'
-description: 'OpenY Camp'
+description: 'OpenY Camp.'
 type: module
 core: 8.x
+package: OpenY
 dependencies:
   - address
   - entity_reference_revisions
@@ -10,12 +11,13 @@ dependencies:
   - geolocation
   - link
   - menu_ui
+  - metatag
   - node
   - openy_location
   - openy_node
   - paragraphs
   - path
   - pathauto
+  - scheduler
   - telephone
   - user
-version: 8.x-1.2

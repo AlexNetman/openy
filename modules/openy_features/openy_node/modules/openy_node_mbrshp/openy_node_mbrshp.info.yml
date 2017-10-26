@@ -1,7 +1,8 @@
-name: 'OpenY membership'
-description: 'OpenY membership'
+name: 'OpenY Membership'
+description: 'OpenY Membership.'
 type: module
 core: 8.x
+package: OpenY
 dependencies:
   - entity_browser
   - entity_reference_revisions
@@ -9,12 +10,14 @@ dependencies:
   - link
   - media_entity
   - menu_ui
+  - metatag
   - node
   - openy_loc_branch
   - openy_media_image
   - paragraphs
   - path
   - pathauto
+  - rabbit_hole
+  - scheduler
   - text
   - user
-version: 8.x-1.1

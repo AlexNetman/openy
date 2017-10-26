@@ -24,12 +24,19 @@ function openy_install() {
     ->save(TRUE);
 
   // Enable the admin theme.
-  $config_factory->getEditable('node.settings')->set('use_admin_theme', TRUE)->save(TRUE);
+  $config_factory
+    ->getEditable('node.settings')
+    ->set('use_admin_theme', TRUE)
+    ->save(TRUE);
+
   // Enable openy_upgrade_tool.
   $module_installer->install(['openy_upgrade_tool'], TRUE);
 
   // Enable openy_user after all modules are installed.
   $module_installer->install(['openy_user'], TRUE);
+
+  // Enable openy_node_alert after openy_rose theme is enabled to place blocks.
+  $module_installer->install(['openy_node_alert'], TRUE);
 }
 
 /**
@@ -169,9 +176,37 @@ function openy_update_8011() {
 }
 
 /**
- * Enable the Header Footer Template module.
+ * Enable Metatag, Redirect and Simple Sitemap modules.
  */
 function openy_update_8012() {
+  // Enable module.
+  \Drupal::service('module_installer')->install([
+    'metatag',
+    'redirect',
+    'simple_sitemap'
+  ]);
+
+  // Set the frontpage to be canonical url instead of alias. We expect node to be there.
+  $config_factory = Drupal::configFactory();
+  $url = $config_factory->getEditable('system.site')->get('page.front');
+
+  if (strpos($url, 'node/') !== FALSE) {
+    return;
+  }
+
+  $aliasStorage = \Drupal::service('path.alias_storage');
+  $alias = $aliasStorage->load(['alias' => $url]);
+
+  if (!empty($alias) && strpos($alias['source'], '/node/') !== FALSE) {
+    $config_factory->getEditable('system.site')->set('page.front', $alias['source'])->save();
+    $aliasStorage->delete(['alias' => $url]);
+  }
+}
+
+/**
+ * Enable the Header Footer Template module.
+ */
+function openy_update_8013() {
   // Enable module.
   \Drupal::service('module_installer')->install(['openy_hf']);
 }
@@ -179,8 +214,276 @@ function openy_update_8012() {
 /**
  * Update WYSIWYG media buttons.
  */
-function openy_update_8013() {
+function openy_update_8014() {
   $config = drupal_get_path('profile', 'openy') . '/config/install/editor.editor.full_html.yml';
   $config_importer = \Drupal::service('openy_upgrade_tool.param_updater');
   $config_importer->update($config, 'editor.editor.full_html', 'settings.toolbar');
+}
+
+/**
+ * Enable OpenY Session Instance & OpenY Moderation wrapper.
+ */
+function openy_update_8015() {
+  // Enable module.
+  \Drupal::service('module_installer')->install([
+    'openy_moderation_wrapper',
+    'openy_session_instance',
+    'openy_schedules',
+    'openy_prgf_schedule_search'
+  ]);
+}
+
+/**
+ * Enable OpenY paragraph Embedded GroupEx Pro Schedule module.
+ */
+function openy_update_8016() {
+  \Drupal::service('module_installer')->install(['openy_prgf_embedded_groupexpro_schedule']);
+
+}
+
+/**
+ * Enable rabbit hole and rabbit hole node modules.
+ */
+function openy_update_8017() {
+  // Enable modules.
+  \Drupal::service('module_installer')->install([
+    'rabbit_hole',
+    'rh_node',
+  ]);
+}
+
+/**
+ * Enable the Class Location paragraph module.
+ */
+function openy_update_8018() {
+  // Enable module.
+  \Drupal::service('module_installer')->install(['openy_prgf_class_location']);
+}
+
+/**
+ * Enable the Class Sessions paragraph module.
+ */
+function openy_update_8019() {
+  // Enable module.
+  \Drupal::service('module_installer')->install(['openy_prgf_class_sessions']);
+}
+
+/**
+ * Enable OpenY Branch Selector module.
+ */
+function openy_update_8020() {
+  // Enable module.
+  \Drupal::service('module_installer')->install(['openy_branch_selector']);
+}
+
+/**
+ * Fix typos in theme settings.
+ */
+function openy_update_8021() {
+  // Get config data.
+  $config = \Drupal::configFactory()->getEditable('openy_rose.settings');
+  $data = $config->get('oepny_rose_image_fields');
+
+  // Update config data.
+  $config->clear('oepny_rose_image_fields');
+  $config->set('openy_rose_image_fields', $data);
+  $config->save();
+}
+
+/**
+ * Enable Webforms set of modules.
+ */
+function openy_update_8022() {
+  // Enable module.
+  \Drupal::service('module_installer')->install([
+    'webform',
+    'webform_ui',
+    'captcha',
+    'image_captcha',
+    'recaptcha',
+    'openy_prgf_webform',
+  ]);
+}
+
+/**
+ * Enable modules: OpenY Popups, OpenY Paragraph Branches Popup (All), and OpenY Paragraph Branches Popup (Class).
+ */
+function openy_update_8023() {
+  // Enable module.
+  \Drupal::service('module_installer')->install([
+    'openy_popups',
+    'openy_prgf_branches_popup_all',
+    'openy_prgf_branches_popup_class'
+  ]);
+}
+
+/**
+ * Enable the Admin Toolbar module.
+ */
+function openy_update_8024() {
+  // Enable module.
+  \Drupal::service('module_installer')->install(['admin_toolbar']);
+}
+
+/**
+ * Enable scheduler module.
+ */
+function openy_update_8025() {
+  \Drupal::service('module_installer')->install(['scheduler']);
+}
+
+/**
+ * Enable Colorbutton module.
+ */
+function openy_update_8026() {
+  // Enable module.
+  \Drupal::service('module_installer')->install([
+    'colorbutton',
+  ]);
+  $config = drupal_get_path('profile', 'openy') . '/config/install/editor.editor.full_html.yml';
+  $config_importer = \Drupal::service('openy_upgrade_tool.param_updater');
+  $config_importer->update($config, 'editor.editor.full_html', 'settings.toolbar');
+}
+
+/**
+ * Enable openy_tour module.
+ */
+function openy_update_8027() {
+  \Drupal::service('module_installer')->install(['openy_tour'], TRUE);
+}
+
+/**
+ * Enable Programs search & program registration paragraph modules.
+ */
+function openy_update_8028() {
+  // Enable modules.
+  \Drupal::service('module_installer')->install([
+    'openy_prgf_pgm_reg',
+    'openy_programs_search',
+  ]);
+}
+
+/**
+ * Enable GroupEx Pro related modules.
+ */
+function openy_update_8029() {
+  // Enable modules.
+  \Drupal::service('module_installer')->install([
+    'openy_group_schedules',
+  ]);
+  \Drupal::service('module_installer')->install([
+    'openy_prgf_group_schedules',
+  ]);
+  \Drupal::service('module_installer')->install([
+    'groupex_form_cache'
+  ]);
+}
+
+/**
+ * Enable RH Taxonomy.
+ */
+function openy_update_8030() {
+  // Enable modules.
+  \Drupal::service('module_installer')->install([
+    'rh_taxonomy',
+  ]);
+}
+
+/**
+ * Enable Microsites menu modules.
+ */
+function openy_update_8031() {
+  // Enable modules.
+  \Drupal::service('module_installer')->install([
+    'openy_block_menu',
+  ]);
+  \Drupal::service('module_installer')->install([
+    'openy_prgf_microsites_menu',
+  ]);
+}
+
+/**
+ * Enable openy_addthis module.
+ */
+function openy_update_8032() {
+  \Drupal::service('module_installer')->install(['openy_addthis'], TRUE);
+}
+
+/**
+ * Enable Contrib modules for Amenities.
+ */
+function openy_update_8033() {
+  // Enable modules.
+  $modules = [
+    'better_exposed_filters',
+    'custom_formatters',
+    'token_filter',
+    'views_field_formatter',
+  ];
+  foreach ($modules as $module) {
+    \Drupal::service('module_installer')->install([
+      $module,
+    ]);
+  }
+}
+
+/**
+ * Enable taxonomy vocabulary Amenities and svg formatter.
+ */
+function openy_update_8034() {
+  // Enable modules.
+  $modules = [
+    'openy_svg_formatter',
+    'openy_txnm_amenities',
+  ];
+  foreach ($modules as $module) {
+    \Drupal::service('module_installer')->install([
+      $module,
+    ]);
+  }
+}
+
+/**
+ * Enable LTO paragraph, openy ckeditor and custom simple block type.
+ */
+function openy_update_8035() {
+  // Enable modules.
+  $modules = [
+    'openy_prgf_lto',
+    'openy_ckeditor',
+    'openy_block_custom_simple',
+  ];
+  foreach ($modules as $module) {
+    \Drupal::service('module_installer')->install([
+      $module,
+    ]);
+  }
+}
+/**
+ * Enable Amenities related modules.
+ */
+function openy_update_8036() {
+  // Enable modules.
+  $modules = [
+    'openy_editor',
+    'openy_block_branch_amenities',
+    'openy_block_flexible_content',
+    'openy_prgf_1c',
+    'openy_prgf_2c',
+    'openy_prgf_3c',
+    'openy_prgf_4c',
+  ];
+  foreach ($modules as $module) {
+    \Drupal::service('module_installer')->install([
+      $module,
+    ]);
+  }
+}
+
+/**
+ * Enable Amenities paragraphs.
+ */
+function openy_update_8037() {
+  // Enable modules.
+  \Drupal::service('module_installer')->install(['openy_prgf_amenities'], TRUE);
 }

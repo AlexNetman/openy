@@ -12,7 +12,7 @@ entity_type: paragraph
 bundle: openy_prgf_mbrshp_calc
 label: Block
 description: ''
-required: false
+required: true
 translatable: true
 default_value:
   -
